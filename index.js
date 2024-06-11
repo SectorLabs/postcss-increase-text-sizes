@@ -56,15 +56,19 @@ module.exports = postcss.plugin('postcss-increase-text-size', function(opts) {
             }
 
             if (decl.prop === 'font-size') {
-                var propUnit = units.parse(decl.value);
-
-                if (propUnit.unit === 'em' || propUnit.unit === 'rem') {
-                    propUnit.value *= opts.fontSizeMultiplyBy;
+                if (decl.value.includes('calc')) {
+                    decl.value = `calc(${opts.fontSizeMultiplyBy} * ${decl.value})`;
                 } else {
-                    propUnit.value = Math.round(propUnit.value * opts.fontSizeMultiplyBy);
-                }
+                    var propUnit = units.parse(decl.value);
 
-                decl.value = propUnit.value + propUnit.unit;
+                    if (propUnit.unit === 'em' || propUnit.unit === 'rem') {
+                        propUnit.value *= opts.fontSizeMultiplyBy;
+                    } else {
+                        propUnit.value = Math.round(propUnit.value * opts.fontSizeMultiplyBy);
+                    }
+
+                    decl.value = propUnit.value + propUnit.unit;
+                }
             }
 
             if (decl.prop === 'line-height' && shouldUpdateLineHeight) {
